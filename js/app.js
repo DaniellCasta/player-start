@@ -17,56 +17,133 @@ const buttonAdd = document.getElementById('btn-enviar');
 
 init();
 
+
 //TODO
 // Main function. 
-function init() {}
+function init() {
+    populateListPlayers();
+    buttonAdd.addEventListener("click", (e)=>{
+        e.preventDefault();
+        addPlayer();
+    })
+}
 
 //TODO
 // This function adds a new player on the list
 /******************************************************************************/
-function addPlayer() {}
+function addPlayer() {
+    console.log("Checking from data ...");
+    
+    if(validateForm()){
+        const formPlayer = document.getElementById("frmPlayer");
+        const [dni, name, surname, date, phone, email, acount, category] = formPlayer.elements;    
+        const aPlayer = [dni.value, name.value, surname.value, date.value, phone.value, email.value, acount.value, category.value];
+        players.push(aPlayer);
 
-//TODO
-// Checks data from the form fields
-function validateForm(){}
+        document.getElementById("frmPlayer").reset();
 
-//TODO
-// Create two separate lists depens on category. it uses two different containers
-function populateListPlayers(){
-    let c_beginner_list = document.getElementById("c_beginner_list");
-    let c_professional_list = document.getElementById("c_professional_list");
+        populateListPlayers();
 
-    for(var i = 0; i < players.length; i++){
-        const catid = `${players[i][7]}`;
-        console.log(catid);
-        if(catid === "BEG"){
-            c_beginner_list.innerHTML +=`
-            <p>
-                <h3>${players[i][1]} ${players[i][2]}</h3>
-                <h4>correu: ${players[i][4]}</h4>
-                <h4>${players[i][7]}</h4>
-            </p>
-            `;
-        }else{
-            c_professional_list.innerHTML +=`
-            <p>
-                <h3>${players[i][1]} ${players[i][2]}</h3>
-                <h4>correu: ${players[i][4]}</h4>
-                <h4>${players[i][7]}</h4>
-            </p>
-            `;
-        }
-        
-
-        
+        alert("Juagdor afegit");
     }
 }
 
-populateListPlayers()
+//TODO
+// Checks data from the form fields
+function validateForm(){
+    const formPlayer = document.getElementById("frmPlayer");
+    const [dni, name, surname, date, phone, email, acount, category] = formPlayer.elements;    
+    let txtCat = category.options[category.selectedIndex].value;
+
+    if(dni.value == " "){
+        alert("Aquest camp és obligatori");
+        return false;
+    }    
+    if(name.value == " "){
+        alert("Aquest camp és obligatori");
+        return false;
+    }
+    if(surname.value == " "){
+        alert("Aquest camp és obligatori");
+        return false;
+    }
+    if(date.value == " "){
+        alert("Aquest camp és obligatori");
+        return false;
+    }
+    if(phone.value == " "){
+        alert("Aquest camp és obligatori");
+        return false;
+    }
+    if(!validateEmail(email.value) || email.value == " "){
+        alert("Email erroni");
+        return false;
+    }
+    if(acount.value == " "){
+        alert("Aquest camp és obligatori");
+        return false;
+    }
+    if(!isValidAgePlayer(date.value, 18) && txtCat === "PRO"){
+        alert("La edat mínima per participar a aquesta categoria és de 18 anys.")
+        return false;
+    }else if(!isValidAgePlayer(date.value, 16) && txtCat === "BEG"){
+        alert("La edat mínima per participar a aquesta categoria és de 16 anys.")
+        return false;
+    }
+return true;
+}
+
+//TODO
+// Create two separate lists depens on category. it uses two different containers
+
+function populateListPlayers(){
+    let playerFilterId = [];
+    const filterDuplicated = [];
+
+        if(!(playerFilterId in filterDuplicated)){
+            for (let i = 0; i < players.length; i++) {
+                    playerFilterId = `${players[i][0]}`;
+                    const catId = `${players[i][7]}`;
+                    filterDuplicated.push(playerFilterId);
+                    if (catId === "BEG") {
+                        containerPlayersBeg.innerHTML +=`
+                        <p>
+                        <img src="img/avatar-icon.png">
+                        <h3>${players[i][1]} ${players[i][2]}</h3>
+                            <h4>correu: ${players[i][4]}</h4>
+                            <h4>${players[i][7]}</h4>
+                        </p>
+                        `;
+                        } else if(catId === "PRO") {
+                            containerPlayersPro.innerHTML +=`
+                                <p>
+                                    <img src="img/avatar-icon.png">
+                                    <h3>${players[i][1]} ${players[i][2]}</h3>
+                                    <h4>correu: ${players[i][4]}</h4>
+                                    <h4>${players[i][7]}</h4>
+                                </p>
+                            `;
+                        } 
+                
+            }
+        }
+}
+
 
 //TODO
 // This function returns true whether the player is 16 years old (for beginners) or 18 years old (for professionals)
-function isValidAgePlayer(sDate, minAge) {}
+function isValidAgePlayer(sDate, minAge) {
+    //From data format 'dd/mm/yyyy' to array type '["dd","mm","yyyy"]'.
+    let aDate = sDate.split("/");
 
+    //Creating the born date variable wich format is.
+    let bornDate = new Date(aDate[2], aDate[1] - 1, aDate[0])
 
+    //Creating the var that contains the day of now.
+    let currentDate = new Date();
 
+    
+    let age = diffAnys(currentDate, bornDate)
+
+    return(age >= minAge)
+}
